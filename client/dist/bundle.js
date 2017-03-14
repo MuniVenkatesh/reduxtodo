@@ -10554,6 +10554,10 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactRedux = __webpack_require__(33);
 
+var _redux = __webpack_require__(26);
+
+var _toggletodo = __webpack_require__(223);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -10574,16 +10578,45 @@ var View = function (_React$Component) {
   _createClass(View, [{
     key: "render",
     value: function render() {
+      var _this2 = this;
+
+      var todosDone = this.props.data.filter(function (item) {
+        return item.completed == true;
+      });
+      var todosPending = this.props.data.filter(function (item) {
+        return item.completed == false;
+      });
       return _react2.default.createElement(
         "div",
-        null,
-        this.props.data.map(function (item) {
-          return _react2.default.createElement(
-            "li",
-            { key: item.id },
-            item.text
-          );
-        })
+        { className: "container row" },
+        _react2.default.createElement(
+          "div",
+          { className: "col-lg-6" },
+          "Completed:",
+          todosDone.map(function (item) {
+            return _react2.default.createElement(
+              "li",
+              { key: item.id, onClick: function onClick() {
+                  _this2.props.toggle(item);
+                } },
+              item.text
+            );
+          })
+        ),
+        _react2.default.createElement(
+          "div",
+          { className: "col-lg-6" },
+          "Pending:",
+          todosPending.map(function (item) {
+            return _react2.default.createElement(
+              "li",
+              { key: item.id, onClick: function onClick() {
+                  _this2.props.toggle(item);
+                } },
+              item.text
+            );
+          })
+        )
       );
     }
   }]);
@@ -10591,13 +10624,17 @@ var View = function (_React$Component) {
   return View;
 }(_react2.default.Component);
 
+function matchDispatchToProps(dispatch) {
+  return (0, _redux.bindActionCreators)({ toggle: _toggletodo.toggletodo }, dispatch);
+}
+
 function muni(state) {
   return {
     data: state.todo
   };
 }
 
-exports.default = (0, _reactRedux.connect)(muni)(View);
+exports.default = (0, _reactRedux.connect)(muni, matchDispatchToProps)(View);
 
 /***/ }),
 /* 99 */
@@ -10612,14 +10649,28 @@ Object.defineProperty(exports, "__esModule", {
 
 function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
+var id = 0;
 var Todo = exports.Todo = function Todo() {
   var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
   var action = arguments[1];
 
+  console.log(action);
   switch (action.type) {
     case "ADDTODO":
-      return [].concat(_toConsumableArray(state), [{ id: new Date(),
-        text: action.payload }]);
+      return [].concat(_toConsumableArray(state), [{ id: id++,
+        text: action.payload,
+        completed: false }]);
+      break;
+
+    case "TOGGLETODO":
+      var toggle = state.map(function (item) {
+        if (item.id == action.payload.id) {
+          item.completed = !item.completed;
+        }
+        return item;
+      });
+
+      return toggle;
       break;
   }
   return state;
@@ -24153,6 +24204,23 @@ var store = (0, _redux.createStore)(_combine2.default);
   { store: store },
   _react2.default.createElement(_App2.default, null)
 ), document.getElementById('root'));
+
+/***/ }),
+/* 223 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var toggletodo = exports.toggletodo = function toggletodo(todo) {
+    return {
+        type: 'TOGGLETODO',
+        payload: todo
+    };
+};
 
 /***/ })
 /******/ ]);
